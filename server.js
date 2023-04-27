@@ -5,8 +5,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 const port = process.env.PORT;
 const app = express();
+
+//calling the middleware
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
+
+//calling the user routers 
+app.use("/kcab",require("./routes/userRoutes"));
 
 
 
