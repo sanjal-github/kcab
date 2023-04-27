@@ -7,6 +7,7 @@ const generateAutoId = async (req, res) => {
     try {
         const userCount = await userModel.count();
         if (userCount == 0) {
+            console.log("hhhhh");
             user_id = 1101;
 
         }//if 
@@ -30,23 +31,24 @@ const userRegistration = async (req, res) => {
     try {
         // checking for already registered email 
         const email = req.body.email;
-        const chkemail = userModel.findOne({ email });
+        const chkemail = await userModel.findOne({email:email});
         if (!chkemail) {
-            
+
+            let id=await generateAutoId(); // function call 
             
             const user = new userModel({
                 // The function call to generate an auto id
-                _id:generateAutoId(), // function call 
+                _id:id,        
                 name: req.body.name,
                 email: req.body.email,
                 phone: req.body.phone,
             });
-        
+
             const userSave = await user.save();
             res.json({
-                success:true,
-                message:"The new user SignUp Successfully",
-                record:userSave
+                success: true,
+                message: "The new user SignUp Successfully",
+                record: userSave
             });
 
         }  // if 
@@ -59,8 +61,9 @@ const userRegistration = async (req, res) => {
 
     }//try 
     catch (error) {
+        console.log(error);
         res.json({
-            success: true,
+            success: false,
             message: error.message
         })
     }// catch

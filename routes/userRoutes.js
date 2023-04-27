@@ -6,7 +6,5 @@ const userControl = require("../controllers/userController");
 
 user_routes.post("/userRegister",userControl.userRegistration);
 
-module.exports = 
-{
-    user_routes
-}
+module.exports = user_routes
+
