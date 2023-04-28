@@ -39,33 +39,32 @@ const userRegistration = async (req, res) => {
         if (!chkemail) {
 
             const chkphone = await userModel.findOne({ phone: phone });
-            if(!chkphone){
-            //śince generateAutoId returning the promise so use await
-            let id = await generateAutoUserId(); // function call 
+            if (!chkphone) {
+                //śince generateAutoId returning the promise so use await
+                let id = await generateAutoUserId(); // function call 
 
-            const user = new userModel({
-                // The function call to generate an auto id
-                _id: id,
-                name: req.body.name,
-                email: req.body.email,
-                phone: req.body.phone,
-            });
+                const user = new userModel({
+                    // The function call to generate an auto id
+                    _id: id,
+                    name: req.body.name,
+                    email: req.body.email,
+                    phone: req.body.phone,
+                });
 
-            const userSave = await user.save();
-            res.json({
-                success: true,
-                message: "The new user SignUp Successfully",
-                record: userSave
-            });
-        } // if (phone)
-        else 
-        {
-            res.json({
-                success: false,
-                message: "An Account with this Mobile No already exist....try else "
-        })
-        }  // if 
-    }
+                const userSave = await user.save();
+                res.json({
+                    success: true,
+                    message: "The new user SignUp Successfully",
+                    record: userSave
+                });
+            } // if (phone)
+            else {
+                res.json({
+                    success: false,
+                    message: "An Account with this Mobile No already exist....try else "
+                })
+            }  // if 
+        }
         else {
             res.json({
                 success: false,
@@ -90,16 +89,14 @@ const userLogin = async (req, res) => {
     try {
         const phone = req.body.phone;
         const user = await userModel.findOne({ phone });
-        
-        if(!user)
-        {
+
+        if (!user) {
             throw new Error("This Phone doesn't Exist..please enter registered Phone Number")
         }
-        else 
-        {
-             generateOTP(user,res);
+        else {
+            generateOTP(user, res);
         }
-        
+
     }
     catch (error) {
         console.log(error);
@@ -110,22 +107,13 @@ const userLogin = async (req, res) => {
     }
 }
 
-const verifyUser= async(_id)=>
-{
-    try
-    {
 
-    }
-    catch(error)
-    {
-        
-    }
-}
 // The function to generate an OTP
-const generateOTP = async ({ _id }, res) => {
+const generateOTP = async ({ _id, status }, res) => {
     try {
+
         const otp = otpGenerator.generate(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
-        const userStatus = await verifyUser(_id)        
+        
         // const otpp = otp;
         // const saltRounds = 10;
         // const hashedOTP = await bcrypt.hash(otp, saltRounds);
@@ -133,8 +121,8 @@ const generateOTP = async ({ _id }, res) => {
         console.log("i am waiting")
         const OTPVerification = new OTPVerificationModel({
             _id: id,
-            userId:_id,
-            otp: hashedOTP,
+            userId: _id,
+            otp: otp,
             //phone:phone,
             createdAt: Date.now(),
             expiresAt: Date.now() + 3600000,
@@ -142,10 +130,11 @@ const generateOTP = async ({ _id }, res) => {
         const sendOTP = await OTPVerification.save();
 
         res.json({
-            status: "PENDING",
+
             message: "Verification OTP Send",
-            otp: otpp,
-            userId:_id,
+            otp: otp,
+            userId: _id,
+            status: status,
             //phone: phone
         });
     }
@@ -198,21 +187,22 @@ const verifyOTP = async (req, res) => {
                 throw new Error("Account Record Doesn't Exist or has been Verified ")
             }   // if 
             else {
-                
+
                 const expiredAt = OTPVerifyRecord.expiredAt;
-                
-                const hashedOTP = OTPVerifyRecord.otp;    
-                
+
+                //const hashedOTP = OTPVerifyRecord.otp;
+
                 if (expiredAt < Date.now()) {
                     await OTPVerificationModel.deleteMany({ userId });
                     throw new Error("The OTP has Expires please send the new OTP Request");
 
                 }//if expires 
                 else {
-                    const validOTP = await bcrypt.compare(otp, hashedOTP);
-                    if (validOTP) {
-                        const updtOTP = await OTPVerificationModel.updateOne({ userId }, { status: true });
-
+                    const vuser = await OTPVerificationModel.findOne({userId,status:false});
+                    const _id=vuser._id;
+                    if (vuser.otp==otp) {
+                        const updtOTP = await OTPVerificationModel.updateOne({ _id }, { status: true });
+                        const updtStatus = await userModel.updateOne({ _id:userId }, { status: "Registered" });
                         res.json({
                             success: true,
                             message: "Login Success.......OTP Verified Successfully"
