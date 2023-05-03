@@ -4,20 +4,21 @@ const userSchema = new mongoose.Schema({
     
     _id:
     {
-        type:Number,
+        type:String,
         //unique:true,
         required:true
     },
     name:
     {
         type:String,
-        required:true
+        
+        
     },
     email:
     {
        type:String,
-       required:true,
-       unique:true 
+       
+       
     },
     phone:
     {
@@ -36,6 +37,6 @@ const userSchema = new mongoose.Schema({
 }
 )
 
-const user = new mongoose.model("user",userSchema);
+const user = new mongoose.model("users",userSchema);
 
 module.exports = user ;

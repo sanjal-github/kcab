@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const UserOTPVerificationSchema = new mongoose.Schema({
     _id:
     {
-        type:Number,
+        type:String,
         require:true
     },
     userId:

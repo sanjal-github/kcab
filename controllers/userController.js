@@ -6,18 +6,20 @@ const bcrypt = require("bcryptjs");
 
 //This is the method to generate an auto user _id
 const generateAutoUserId = async (req, res) => {
-    var user_id = 0;
+    var userId = "";
     try {
         const userCount = await userModel.count();
         if (userCount == 0) {
-            user_id = 1101;
+            userId = "1101";
 
         }//if 
         else {
-            const userLastRec = await userModel.findOne().sort({ _id: -1 }).limit(1);
-            user_id = userLastRec._id + 1;
+            let userLastRec = await userModel.findOne().sort({ _id: -1 }).limit(1);
+            let user_Id = Number(userLastRec._id);
+            user_Id = user_Id + 1;
+            userId = user_Id.toString();
         }
-        return user_id;  // returning the promise 
+        return userId;  // returning the promise 
     } // try 
     catch (error) {
         console.log(error);
@@ -30,47 +32,20 @@ const generateAutoUserId = async (req, res) => {
 
 }
 
-const userRegistration = async (req, res) => {
+const addUserInfo = async (req, res) => {
     try {
-        // checking for already registered email 
-        const email = req.body.email;
-        const phone = req.body.phone;
-        const chkemail = await userModel.findOne({ email: email });
-        if (!chkemail) {
-
-            const chkphone = await userModel.findOne({ phone: phone });
-            if (!chkphone) {
-                //śince generateAutoId returning the promise so use await
-                let id = await generateAutoUserId(); // function call 
-
-                const user = new userModel({
-                    // The function call to generate an auto id
-                    _id: id,
-                    name: req.body.name,
-                    email: req.body.email,
-                    phone: req.body.phone,
-                });
-
-                const userSave = await user.save();
-                res.json({
-                    success: true,
-                    message: "The new user SignUp Successfully",
-                    record: userSave
-                });
-            } // if (phone)
-            else {
-                res.json({
-                    success: false,
-                    message: "An Account with this Mobile No already exist....try else "
-                })
-            }  // if 
-        }
-        else {
-            res.json({
-                success: false,
-                message: "An Account with this email already exist....try else "
-            })
-        } // else 
+         let _id = req.body._id;
+         let name = req.body.name;
+         let email= req.body.email;
+         let userRecord = await  
+         let userAddRec = await userModel.findByIdAndUpdate({_id},{
+            $set:{name:name,email:email}
+         });
+       res.json({
+        success:true,
+        message:`The information added of id ${_id}`,
+        record:userAddRec
+       })  
 
     }//try 
     catch (error) {
@@ -90,12 +65,25 @@ const userLogin = async (req, res) => {
         const phone = req.body.phone;
         const user = await userModel.findOne({ phone });
 
+
         if (!user) {
-            throw new Error("This Phone doesn't Exist..please enter registered Phone Number")
+            
+            let id = await generateAutoUserId(); // function call 
+            console.log("Not Already Exist");
+            let newuser = new userModel({
+                _id: id,
+                phone: req.body.phone
+            });
+            
+
+            let saveuser = await newuser.save();
+            console.log("Not Already Existtttt");
+            generateOTP(saveuser, res);
         }
         else {
             generateOTP(user, res);
         }
+
 
     }
     catch (error) {
@@ -113,7 +101,7 @@ const generateOTP = async ({ _id, status }, res) => {
     try {
 
         const otp = otpGenerator.generate(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
-        
+
         // const otpp = otp;
         // const saltRounds = 10;
         // const hashedOTP = await bcrypt.hash(otp, saltRounds);
@@ -149,16 +137,18 @@ const generateOTP = async ({ _id, status }, res) => {
 
 // The function to generate auto otp verification _id 
 const generateAutoOtpId = async (req, res) => {
-    var otp_id = 0;
+    var otp_id = "";
     try {
         const otpCount = await OTPVerificationModel.count();
         if (otpCount == 0) {
-            otp_id = 31011;
+            otp_id = "31011";
 
         }//if 
         else {
             const otpLastRec = await OTPVerificationModel.findOne().sort({ _id: -1 }).limit(1);
-            otp_id = otpLastRec._id + 1;
+            let otpId = Number(otpLastRec._id)
+            otpId = otpId + 1;
+            otp_id = otpId.toString();
         }
         return otp_id;  // returning the promise 
     } // try 
@@ -198,11 +188,11 @@ const verifyOTP = async (req, res) => {
 
                 }//if expires 
                 else {
-                    const vuser = await OTPVerificationModel.findOne({userId,status:false});
-                    const _id=vuser._id;
-                    if (vuser.otp==otp) {
+                    const vuser = await OTPVerificationModel.findOne({ userId, status: false });
+                    const _id = vuser._id;
+                    if (vuser.otp == otp) {
                         const updtOTP = await OTPVerificationModel.updateOne({ _id }, { status: true });
-                        const updtStatus = await userModel.updateOne({ _id:userId }, { status: "Registered" });
+                        const updtStatus = await userModel.updateOne({ _id: userId }, { status: "Registered" });
                         res.json({
                             success: true,
                             message: "Login Success.......OTP Verified Successfully"
@@ -226,7 +216,7 @@ const verifyOTP = async (req, res) => {
     } // catch 
 }
 module.exports = {
-    userRegistration,
+    addUserInfo,
     userLogin,
     verifyOTP
 }   
