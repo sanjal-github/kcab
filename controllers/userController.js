@@ -37,16 +37,27 @@ const addUserInfo = async (req, res) => {
          let _id = req.body._id;
          let name = req.body.name;
          let email= req.body.email;
-         let userRecord = await  
-         let userAddRec = await userModel.findByIdAndUpdate({_id},{
-            $set:{name:name,email:email}
-         });
-       res.json({
-        success:true,
-        message:`The information added of id ${_id}`,
-        record:userAddRec
-       })  
-
+         let userRecord = await userModel.findOne({email});
+           if(!userRecord)
+           {
+            let userAddRec = await userModel.findByIdAndUpdate({_id},{
+                $set:{name:name,email:email}
+             });
+            res.json({
+            success:true,
+            message:`The information added of id ${_id}`,
+            record:userAddRec
+           })
+           } //if 
+           else 
+           {
+            res.json({
+                success:true,
+                message:`Email Id Already Exist by Another User`,
+                
+               });
+           }         
+           
     }//try 
     catch (error) {
         console.log(error);
