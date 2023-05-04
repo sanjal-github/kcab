@@ -34,36 +34,35 @@ const generateAutoUserId = async (req, res) => {
 
 const addUserInfo = async (req, res) => {
     try {
-         let _id = req.body._id;
-         let name = req.body.name;
-         let email= req.body.email;
-         let userRecord = await userModel.findOne({email});
-           if(!userRecord)
-           {
-            let userAddRec = await userModel.findByIdAndUpdate({_id},{
-                $set:{name:name,email:email}
-             });
+        let _id = req.body._id;
+        let userData = await userModel.findOne({_id})
+        if(userData)
+        {
+        
+            let userAddRec = await userModel.findByIdAndUpdate(_id, req.body,
+                {
+                    new: true
+                });
             res.json({
-            success:true,
-            message:`The information added of id ${_id}`,
-            record:userAddRec
-           })
-           } //if 
-           else 
-           {
-            res.json({
-                success:true,
-                message:`Email Id Already Exist by Another User`,
-                
-               });
-           }         
-           
+                success: true,
+                message: `The information added of id ${_id}`,
+                record: userAddRec
+            })
+        
+    }// if(userData)
+    else
+    {
+        res.json({
+            success:false,
+            message:`This Id ${_id} record cant Exist`
+        })
+    }
     }//try 
     catch (error) {
         console.log(error);
         res.json({
             success: false,
-            message: error.message
+            message:"This email Id Already Exist"
         })
     }// catch
 }
@@ -78,14 +77,14 @@ const userLogin = async (req, res) => {
 
 
         if (!user) {
-            
+
             let id = await generateAutoUserId(); // function call 
             console.log("Not Already Exist");
             let newuser = new userModel({
                 _id: id,
                 phone: req.body.phone
             });
-            
+
 
             let saveuser = await newuser.save();
             console.log("Not Already Existtttt");
