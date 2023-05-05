@@ -38,8 +38,7 @@ const addUserInfo = async (req, res) => {
         let userData = await userModel.findOne({_id})
         if(userData)
         {
-        
-            let userAddRec = await userModel.findByIdAndUpdate(_id, req.body,
+             let userAddRec = await userModel.findByIdAndUpdate(_id, req.body,
                 {
                     new: true
                 });

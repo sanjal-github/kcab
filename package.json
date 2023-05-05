@@ -1,7 +1,7 @@
 {
   "name": "kcab",
   "version": "1.0.0",
-  "description": "it is an app ,of the cab drive",
+  "description": "it is an app of the cab drive",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

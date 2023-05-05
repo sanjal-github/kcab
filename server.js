@@ -13,9 +13,6 @@ app.use(express.urlencoded({extended:false}));
 //calling the user routers 
 app.use("/kcab",require("./routes/userRoutes"));
 
-
-
-
 mongoose.connect(process.env.MONGO_URI,
     {
     dbName:process.env.DB_NAME,

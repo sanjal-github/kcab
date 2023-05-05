@@ -9,27 +9,11 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     name:
-        [
-            {
-                firstName:
-                {
-                    type: String,
-                    default: ""
-
-                },
-                middleName:
-                {
-                    type: String,
-                    default: ""
-                },
-                lastName:
-                {
-                    type: String,
-                    default: ""
-
-                }
-            }
-        ],
+      {
+        type:String
+        
+      }
+        ,
     email:
     {
         type: String,
