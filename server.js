@@ -10,8 +10,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
-//calling the user routers 
+//calling the routers 
 app.use("/kcab",require("./routes/userRoutes"));
+app.use("/kcab",require("./routes/vehicleRoutes"));
 
 mongoose.connect(process.env.MONGO_URI,
     {
