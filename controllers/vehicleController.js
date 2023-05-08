@@ -1,6 +1,6 @@
 const vehicleModel = require("../models/vehicles");
 
-// To add the vehicle Details
+// To generates auto vehicle id 
 const autoVehicleId = async () => {
     try {
         let vehicle_Id = 0;
@@ -10,7 +10,7 @@ const autoVehicleId = async () => {
         }
         else {
             let last_vehicle = await vehicleModel.findOne().sort({ _id: -1 }).limit(1);
-            vehicle_Id = Number(last_vehicle._id);
+            vehicle_Id = Number(last_vehicle._id); // converts String to Number 
             vehicle_Id = vehicle_Id + 1;
         }
         console.log("The VID is:" + vehicle_Id);
@@ -24,11 +24,13 @@ const autoVehicleId = async () => {
         })
     }//catch
 }
+
+//To add Vehicle Details
 const addVehicle = async (req, res) => {
     try {
         let vehicle_no = req.body.vehicle_no;
         let vehicleData = await vehicleModel.findOne({ vehicle_no: vehicle_no });
-        if (vehicleData) {
+        if (!vehicleData) {
             let vid = await autoVehicleId(); // To generate auto vehicle Id
             const vehicle = new vehicleModel({
                 _id: vid,
@@ -52,7 +54,7 @@ const addVehicle = async (req, res) => {
         else {
             res.json({
                 success: true,
-                message: `This Vehicle Number ${vehicle_no} already registered`
+                message: `This Vehicle Number ${vehicle_no} already added`
             });
         } //else 
 
@@ -70,7 +72,7 @@ const addVehicle = async (req, res) => {
 // To get the Vehicles Details
 const listVehicles = async (req, res) => {
     try {
-        const vehicles_Data = await vehicleModel.aggregate([{ $project: { _id: 1, name: 1, model: 1, color: 1 } }]);
+        const vehicles_Data = await vehicleModel.aggregate([{ $project: { _id: 1, vehicle_no:1,name: 1, model: 1, color: 1 } }]);
 
         if (vehicles_Data.length > 0) {
             res.json({
