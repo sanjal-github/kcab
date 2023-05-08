@@ -31,7 +31,6 @@ const generateAutoUserId = async (req, res) => {
     }
 
 }
-
 const addUserInfo = async (req, res) => {
     try {
         let _id = req.body._id;
@@ -86,7 +85,7 @@ const userLogin = async (req, res) => {
 
 
             let saveuser = await newuser.save();
-            console.log("Not Already Existtttt");
+            console.log("Not Already Exist");
             generateOTP(saveuser, res);
         }
         else {
@@ -171,7 +170,6 @@ const generateAutoOtpId = async (req, res) => {
     }
 
 }
-
 // This is an api to verify the token 
 const verifyOTP = async (req, res) => {
     try {
@@ -181,7 +179,7 @@ const verifyOTP = async (req, res) => {
             throw new Error("Wrong OTP Details are not allows");
         } // if 
         else {
-            const OTPVerifyRecord = await OTPVerificationModel.findOne({ userId });
+            const OTPVerifyRecord = await OTPVerificationModel.find({ userId });
             if (OTPVerifyRecord.length <= 0) {
                 throw new Error("Account Record Doesn't Exist or has been Verified ")
             }   // if 
