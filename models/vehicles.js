@@ -43,6 +43,10 @@ const vehicleSchema = new mongoose.Schema({
     {
         type: String,
     },
+    image:{
+        type:String,
+        required:true
+    },
     price:
     {
         type: String,
