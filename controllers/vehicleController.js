@@ -26,25 +26,35 @@ const autoVehicleId = async () => {
 }
 const addVehicle = async (req, res) => {
     try {
-        let vid = await autoVehicleId(); // To generate auto vehicle Id
-        const vehicle = new vehicleModel({
-            _id: vid,
-            rto_no: req.body.rto_no,
-            name: req.body.name,
-            brand: req.body.brand,
-            model: req.body.model,
-            color: req.body.color,
-            fuel_type: req.body.fuel_type,
-            seater_type: req.body.seater_type,
-            image: req.file.filename,
-            price: req.body.price
-        });
-        const vehicleSave = await vehicle.save();
-        res.json({
-            success: true,
-            message: "The new Vehicle Record added",
-            record: vehicleSave
-        });
+        let vehicle_no = req.body.vehicle_no;
+        let vehicleData = await vehicleModel.findOne({ vehicle_no: vehicle_no });
+        if (vehicleData) {
+            let vid = await autoVehicleId(); // To generate auto vehicle Id
+            const vehicle = new vehicleModel({
+                _id: vid,
+                vehicle_no: req.body.vehicle_no,
+                name: req.body.name,
+                brand: req.body.brand,
+                model: req.body.model,
+                color: req.body.color,
+                fuel_type: req.body.fuel_type,
+                seater_type: req.body.seater_type,
+                image: req.file.filename,
+                price: req.body.price
+            });
+            const vehicleSave = await vehicle.save();
+            res.json({
+                success: true,
+                message: "The new Vehicle Record added",
+                record: vehicleSave
+            });
+        }//if
+        else {
+            res.json({
+                success: true,
+                message: `This Vehicle Number ${vehicle_no} already registered`
+            });
+        } //else 
 
     } // end of the try 
     catch (error) {
@@ -183,7 +193,11 @@ const soft_delete_vehicle = async (req, res) => {
         else {
             const chng_status = await vehicleModel.findByIdAndUpdate({ _id },
                 {
-                    status: "deactive",
+                    $set: {
+                        status: "deactive",
+                    }
+                },
+                {
                     new: true
                 });
             res.json({
