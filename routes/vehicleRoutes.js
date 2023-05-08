@@ -2,7 +2,7 @@ const express = require('express');
 const vehicle_routes = express.Router();
 const vehicleControl = require("../controllers/vehicleController");
 const multer = require("multer");
-
+const path = require("path");
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -27,13 +27,13 @@ const storage = multer.diskStorage({
 
 });  // multer.diskStorage
 
-let uploadImage = multer({storage:storage})
+let uploadImage = multer({ storage: storage })
 
 
 
 
 // Routers of an api for vehicle 
-vehicle_routes.post("/vehicle", uploadImage.single("image"),vehicleControl.addVehicle);
+vehicle_routes.post("/vehicle", uploadImage.single("image"), vehicleControl.addVehicle);
 //vehicle_routes.post("/vehicle", vehicleControl.addVehicle); // this api not uploading an image
 vehicle_routes.get("/vehicle", vehicleControl.listVehicles);
 vehicle_routes.get("/vehicle/:_id", vehicleControl.display_vehicle);

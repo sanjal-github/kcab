@@ -36,6 +36,7 @@ const addVehicle = async (req, res) => {
             color: req.body.color,
             fuel_type: req.body.fuel_type,
             seater_type: req.body.seater_type,
+            image: req.file.filename,
             price: req.body.price
         });
         const vehicleSave = await vehicle.save();
@@ -47,6 +48,7 @@ const addVehicle = async (req, res) => {
 
     } // end of the try 
     catch (error) {
+        console.log(error);
         res.json({
             success: false,
             message: error.message
@@ -60,24 +62,22 @@ const listVehicles = async (req, res) => {
     try {
         const vehicles_Data = await vehicleModel.aggregate([{ $project: { _id: 1, name: 1, model: 1, color: 1 } }]);
 
-        if(vehicles_Data.length>0)
-        {
+        if (vehicles_Data.length > 0) {
             res.json({
                 success: true,
                 message: "The Veḥicles Records are",
                 record: vehicles_Data
             });
         }//if 
-        else 
-        {
+        else {
             res.json({
                 success: true,
                 message: "The Veḥicles Records list is empty",
                 record: vehicles_Data
             });
-        } 
+        }
 
-        
+
     }//try
     catch (error) {
         res.json({
@@ -93,6 +93,7 @@ const display_vehicle = async (req, res) => {
     try {
         let _id = req.params._id;
         const vehicle_data = await vehicleModel.findOne({ _id });
+
         if (vehicle_data) {
             res.json({
                 success: true,
@@ -101,7 +102,11 @@ const display_vehicle = async (req, res) => {
             })
         }
         else {
-
+            res.json({
+                success: true,
+                message: "Vehicle not Found",
+                record: vehicle_data
+            })
         }
 
     }
@@ -176,10 +181,10 @@ const soft_delete_vehicle = async (req, res) => {
             })
         }  //if 
         else {
-            const chng_status = await vehicleModel.findByIdAndUpdate({_id},
+            const chng_status = await vehicleModel.findByIdAndUpdate({ _id },
                 {
-                    status:"deactive",
-                    new:true
+                    status: "deactive",
+                    new: true
                 });
             res.json({
                 success: true,
