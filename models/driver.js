@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+// This is the Driver Schema 
 const driverSchema = new mongoose.Schema({
     _id:
     {

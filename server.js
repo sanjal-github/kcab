@@ -13,6 +13,7 @@ app.use(express.urlencoded({extended:false}));
 //calling the routers 
 app.use("/kcab",require("./routes/userRoutes"));
 app.use("/kcab",require("./routes/vehicleRoutes"));
+app.use("/kcab",require("./routes/driverRoutes"));
 
 mongoose.connect(process.env.MONGO_URI,
     {

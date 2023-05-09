@@ -18,10 +18,7 @@ const autoVehicleId = async () => {
 
     } // try 
     catch (error) {
-        res.json({
-            success: false,
-            message: error.message
-        })
+        console.log(error);
     }//catch
 }
 
