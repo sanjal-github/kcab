@@ -29,5 +29,7 @@ const uploadDriver = multer({storage:storage});
 
 driver_routes.post("/driver",uploadDriver.single("photo"),driverControl.addDriver);
 driver_routes.get("/driver",driverControl.listDrivers);
-
+driver_routes.get("/driver/:_id",driverControl.getDriver);
+driver_routes.put("/driver/:_id",uploadDriver.single("photo"),driverControl.updateDriver);
+driver_routes.delete("/driver/:_id",driverControl.deleteDriver);
 module.exports = driver_routes;

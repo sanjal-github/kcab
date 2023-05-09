@@ -99,13 +99,111 @@ const listDrivers = async (req, res) => {
 
 const getDriver = async (req, res) => {
     try {
-
+        const _id = req.params._id;
+        //const driver_rec = await driverModel.findOne({ _id });
+        const driver_rec = await driverModel.findOne({ $and: [{ _id }, { working: true }] });
+        if (driver_rec) {
+            res.json({
+                success: true,
+                message: `The driver record of _Id ${_id} is`,
+                record: driver_rec
+            });
+        } //if 
+        else {
+            res.json({
+                success: true,
+                message: `The driver record of _Id ${_id} is not found`,
+            });
+        } // else 
     } // try
     catch (error) {
         res.json({
             success: false,
             message: error.message
-        })
+        });
+    } // catch
+} // get Driver
+
+// This is an api to update the driver record 
+const updateDriver = async (req, res) => {
+    try {
+        const _id = req.params._id;
+        console.log("The Driver Id:" + _id);
+        const driver_rec = await driverModel.findOne({ $and: [{ _id }, { working: true }] });
+        //const driver_rec = await driverModel.findOne({ _id });
+        if (driver_rec) {
+
+            const liscence_number = req.body.liscence_number;
+            const found_driver = await driverModel.findOne({ liscence_number: liscence_number });
+
+            if (found_driver) {
+                res.json({
+                    success: true,
+                    message: `This updated liscense Number ${liscence_number} already registered to another driver`,
+
+                });
+            } // if(found_driver)
+            else {
+
+                const update_driver = await driverModel.findByIdAndUpdate(_id, req.body,
+                    {
+                        new: true
+                    });  // update_driver
+                console.log("Updated REcord:" + update_driver)
+                res.json({
+                    success: true,
+                    message: `The ${_id} ID Driver Record updates Successfully`,
+                    record: update_driver
+                });
+            } //else 
+        } // if (driver_rec)
+        else {
+            res.json({
+                success: true,
+                message: `The driver record of _Id ${_id} is not found to update`,
+            });
+        } //else 
+
+    }//try 
+    catch (error) {
+        console.log(error);
+        res.json({
+            success: false,
+            message: error.message
+        });
+    } // catch 
+
+} // updateDriver 
+
+
+const deleteDriver = async (req, res) => {
+    try {
+        const _id = req.params._id;
+        const driver_rec = await driverModel.findOne({ $and: [{ _id }, { working: true }] });
+        if (driver_rec) {
+            const deleteDriver = await driverModel.findByIdAndUpdate({ _id }, { $set: { working: false } },
+                {
+                    new: true
+                });
+            res.json({
+                success: true,
+                message: `The driver record of _Id ${_id} deletes successfully`,
+                record: deleteDriver
+            })
+        }
+        else {
+            res.json({
+                success: true,
+                message: `The driver record of _Id ${_id} is not found to or already deleted`,
+            });
+        }
+    } // try 
+    catch (error) {
+        req.json({
+            success: false,
+            message: error.message
+        });
+
     } // catch
 }
 
@@ -113,7 +211,10 @@ const getDriver = async (req, res) => {
 module.exports =
 {
     addDriver,
-    listDrivers
+    listDrivers,
+    getDriver,
+    updateDriver,
+    deleteDriver
 }
 
 

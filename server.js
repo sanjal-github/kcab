@@ -8,7 +8,7 @@ const app = express();
 
 //calling the middleware
 app.use(express.json());
-app.use(express.urlencoded({extended:false}));
+app.use(express.urlencoded({extended:true}));
 
 //calling the routers 
 app.use("/kcab",require("./routes/userRoutes"));
