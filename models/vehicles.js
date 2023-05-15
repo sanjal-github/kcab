@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const vehicleSchema = new mongoose.Schema({
     _id:
     {
@@ -37,11 +36,12 @@ const vehicleSchema = new mongoose.Schema({
     fuel_type:
     {
         type: String,
+        enum:["petrol","diesel","electric","cng"],
         required: true
     },
     seater_type:
     {
-        type: String,
+        type:Number,
     },
     image:{
         type:String,
@@ -64,5 +64,4 @@ const vehicleSchema = new mongoose.Schema({
     });
 
 let vehicle = new mongoose.model("vehicles", vehicleSchema);
-
 module.exports = vehicle;

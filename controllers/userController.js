@@ -34,10 +34,9 @@ const generateAutoUserId = async (req, res) => {
 const addUserInfo = async (req, res) => {
     try {
         let _id = req.body._id;
-        let userData = await userModel.findOne({_id})
-        if(userData)
-        {
-             let userAddRec = await userModel.findByIdAndUpdate(_id, req.body,
+        let userData = await userModel.findOne({ _id })
+        if (userData) {
+            let userAddRec = await userModel.findByIdAndUpdate(_id, req.body,
                 {
                     new: true
                 });
@@ -45,22 +44,21 @@ const addUserInfo = async (req, res) => {
                 success: true,
                 message: `The information added of id ${_id}`,
                 record: userAddRec
+            });
+
+        }// if(userData)
+        else {
+            res.json({
+                success: false,
+                message: `This Id ${_id} record cant Exist`
             })
-        
-    }// if(userData)
-    else
-    {
-        res.json({
-            success:false,
-            message:`This Id ${_id} record cant Exist`
-        })
-    }
+        }
     }//try 
     catch (error) {
         console.log(error);
         res.json({
             success: false,
-            message:"This email Id Already Exist"
+            message: "This email Id Already Exist"
         })
     }// catch
 }
@@ -73,11 +71,9 @@ const userLogin = async (req, res) => {
         const phone = req.body.phone;
         const user = await userModel.findOne({ phone });
 
-
         if (!user) {
 
             let id = await generateAutoUserId(); // function call 
-            console.log("Not Already Exist");
             let newuser = new userModel({
                 _id: id,
                 phone: req.body.phone
@@ -85,7 +81,6 @@ const userLogin = async (req, res) => {
 
 
             let saveuser = await newuser.save();
-            console.log("Not Already Exist");
             generateOTP(saveuser, res);
         }
         else {
@@ -114,7 +109,7 @@ const generateOTP = async ({ _id, status }, res) => {
         // const saltRounds = 10;
         // const hashedOTP = await bcrypt.hash(otp, saltRounds);
         const id = await generateAutoOtpId();
-        console.log("i am waiting")
+        //console.log("i am waiting")
         const OTPVerification = new OTPVerificationModel({
             _id: id,
             userId: _id,
@@ -170,6 +165,8 @@ const generateAutoOtpId = async (req, res) => {
     }
 
 }
+
+
 // This is an api to verify the token 
 const verifyOTP = async (req, res) => {
     try {

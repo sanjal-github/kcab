@@ -42,7 +42,7 @@ const driverSchema = new mongoose.Schema({
         required:true,
         unique:true
     },
-    working:
+    status:
     {
         type:Boolean,
         default:true
