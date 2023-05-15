@@ -14,7 +14,7 @@ app.use(express.urlencoded({extended:true}));
 app.use("/kcab",require("./routes/userRoutes"));
 app.use("/kcab",require("./routes/vehicleRoutes"));
 app.use("/kcab",require("./routes/driverRoutes"));
-app.use("/kcab",require("./routes/fareRoutes"));
+app.use("/kcab",require("./routes/rentalCabRoutes"));
 
 //connecting from mongoose 
 mongoose.connect(process.env.MONGO_URI,

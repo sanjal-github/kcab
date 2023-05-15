@@ -86,8 +86,6 @@ const userLogin = async (req, res) => {
         else {
             generateOTP(user, res);
         }
-
-
     }
     catch (error) {
         console.log(error);

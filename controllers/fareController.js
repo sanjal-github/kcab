@@ -81,11 +81,11 @@ var updateFare = async (req, res) => {
             {
                 new: true
             });  //fareUpdate
-            res.json({
-                success:true,
-                message:"The Fare is Updated /hour",
-                updatedRecord:fareUpdate
-            })
+        res.json({
+            success: true,
+            message: "The Fare is Updated /hour",
+            updatedRecord: fareUpdate
+        })
 
     }  // try 
     catch (error) {
