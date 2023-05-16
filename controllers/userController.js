@@ -65,7 +65,6 @@ const addUserInfo = async (req, res) => {
 
 
 // An Api for user login or signUp
-
 const userLogin = async (req, res) => {
     try {
         const phone = req.body.phone;

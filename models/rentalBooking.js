@@ -7,8 +7,8 @@ const rentalCabSchema = new mongoose.Schema({
     },
     user_id:
     {
-     type:String,
-     required:true
+        type: String,
+        required: true
     },
     rental_Hours:
     {
@@ -32,19 +32,18 @@ const rentalCabSchema = new mongoose.Schema({
     },
     status:
     {
-        type:Boolean,
-        default:true
-    },
-    location:
-    {
-        type: String,
-        coordinates: []
+        type: Boolean,
+        default: true
     }
+    
 },
-{
-    timestamps:true
-});
+    {
+        timestamps: true
+    });
 
-rentalCabSchema.index({location:"2dsphere"});
-let rentalCab = new mongoose.model("rentalCab",rentalCabSchema);
+
+
+
+rentalCabSchema.index({ location: "2dsphere" });
+let rentalCab = new mongoose.model("rentalCab", rentalCabSchema);
 module.exports = rentalCab;
