@@ -1,7 +1,6 @@
 const driverModel = require("../models/driver");
 
 
-
 // to create an auto driver Id
 const autoDriverId = async () => {
     try {

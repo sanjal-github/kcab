@@ -10,6 +10,10 @@ const rentalCabSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    seater_type:
+    {
+        type:Number,
+    },
     rental_Hours:
     {
         type: Number,
@@ -35,14 +39,10 @@ const rentalCabSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     }
-    
 },
     {
         timestamps: true
     });
-
-
-
 
 rentalCabSchema.index({ location: "2dsphere" });
 let rentalCab = new mongoose.model("rentalCab", rentalCabSchema);

@@ -38,7 +38,7 @@ const addVehicle = async (req, res) => {
                 color: req.body.color,
                 fuel_type: req.body.fuel_type,
                 seater_type: req.body.seater_type,
-                image: req.file.filename,
+                //image: req.file.filename,
                 price: req.body.price
             });
             const vehicleSave = await vehicle.save();
@@ -69,7 +69,7 @@ const addVehicle = async (req, res) => {
 // To get the Vehicles Details
 const listVehicles = async (req, res) => {
     try {
-        const vehicles_Data = await vehicleModel.aggregate([{ $project: { _id: 1, vehicle_no:1,name: 1, model: 1, color: 1 } }]);
+        const vehicles_Data = await vehicleModel.aggregate([{ $project: { _id: 1, vehicle_no: 1, name: 1, model: 1, color: 1 } }]);
 
         if (vehicles_Data.length > 0) {
             res.json({
