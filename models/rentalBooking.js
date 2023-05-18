@@ -38,6 +38,10 @@ const rentalCabSchema = new mongoose.Schema({
     {
         type: Boolean,
         default: true
+    },
+    vehicle_no:
+    {
+        type:String
     }
 },
     {

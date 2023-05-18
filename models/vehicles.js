@@ -57,7 +57,12 @@ const vehicleSchema = new mongoose.Schema({
         type:String,
         enum:["active","deactive"],
         default:"active"
-    }
+    },
+    booking_status:
+    {
+        type:Boolean,
+        default:false
+    },
 },
     {
         timestamps: true

@@ -163,7 +163,6 @@ const generateAutoOtpId = async (req, res) => {
 
 }
 
-
 // This is an api to verify the token 
 const verifyOTP = async (req, res) => {
     try {

@@ -2,6 +2,7 @@ const rentalCabModel = require("../models/rentalBooking");
 const userModel = require("../models/users");
 const locationModel = require("../models/rentalLocation");
 const vehicleModel = require("../models/vehicles");
+const vehicle = require("../models/vehicles");
 
 let generateAutoId = async (req, res) => {
     try {
@@ -14,7 +15,7 @@ let generateAutoId = async (req, res) => {
         }
         else {
             let rental_idd = await rentalCabModel.findOne().sort({ _id: -1 }).limit(1);
-            rental_id = Number(rental_idd);
+            rental_id = Number(rental_idd._id);
             rental_id = rental_id + 1;
         }
         return rental_id.toString();
@@ -31,7 +32,14 @@ let rentalCabAdd = async (req, res) => {
         let chk_user = await userModel.findOne({ _id: user_id });
         if (chk_user) {
             let seater_type = req.body.seater_type;
-            const rental_vehical = await vehicleModel.findOne({$and:[{ seater_type: seater_type }, { status: "active" }]}).sort({ _id: 1 }).limit(1);
+
+            // This the aggregation for finding the available vehicle for rental booking
+            const rental_vehical = await vehicleModel.findOne({
+                $and: [{ seater_type: seater_type }, { status: "active" },
+                { booking_status: false }]
+            }).sort({ _id: 1 }).limit(1);
+
+
             console.log(rental_vehical);
             if (rental_vehical) {
                 let alloted_vehicle =
@@ -50,10 +58,11 @@ let rentalCabAdd = async (req, res) => {
                     rental_Hours: req.body.rental_Hours,
                     rental_date: req.body.rental_date,
                     rental_time: req.body.rental_time,
-                    start_price: req.body.start_price
+                    start_price: req.body.start_price,
+                    vehicle_no: rental_vehical.vehicle_no
                 }); //end of the rentalCabAdd
                 const rentalCabSave = await rentalCabAdd.save(); // save the rental
-                const update_vehicle_status = await vehicleModel.updateOne({_id:rental_vehical._id},{$set:{status:"deactive"}})
+                const update_vehicle_status = await vehicleModel.updateOne({ _id: rental_vehical._id }, { $set: { booking_status: true } })
                 res.json({
                     success: true,
                     message: 'The Request for the Rental Cab Added',
@@ -119,6 +128,7 @@ const listRentalCab = async (req, res) => {
 // This is an api to send the cuurent location of the user who make a rental request
 let generateLocationId = async (req, res) => {
     try {
+
         let location_id = 0;
         let rentalLocation = await locationModel.count();
         if (rentalLocation == 0)  // the database table is empty 
@@ -128,8 +138,9 @@ let generateLocationId = async (req, res) => {
         }
         else {
             let location_idd = await locationModel.findOne().sort({ _id: -1 }).limit(1);
-            location_id = Number(location_idd);
+            location_id = Number(location_idd._id);
             location_id = location_id + 1;
+
         }
         return location_id.toString();
 
@@ -139,6 +150,8 @@ let generateLocationId = async (req, res) => {
     } // catch 
 }
 
+
+// the Method to find the current location lat long 
 var getCurrentLocation = async () => {
     // get the end point of current location from ip-api
     const location = fetch("http://ip-api.com/json/?fields=61439");
@@ -146,38 +159,52 @@ var getCurrentLocation = async () => {
     return mylocation
 }
 
+
+// An Api to enter the current location dynamically
 const enterCurrentLocation = async (req, res) => {
     try {
         const rental_id = req.params._id;
-        const iscab = await rentalCabModel.findOne({ _id: rental_id });
-        if (iscab) {
-            let currLoc = await getCurrentLocation();
-            const _id = await generateLocationId()
-            console.log("The Current Location is\n", currLoc);
-            const myLocation = new locationModel({
-                _id: _id,
-                rental_id: rental_id,
-                location: {
-                    type: "Point",
-                    coordinates: [parseFloat(currLoc.lon), parseFloat(currLoc.lat)]
-                }
-            })
-            const updtlocation = myLocation.save();
-            // const updtlocation = rentalCabModel.updateOne({ _id: _id },{ $set: { "locations.$.type": "Point","locations.$.coordinates":[parseFloat(lat),parseFloat(long)]} },{new:true});
-            console.log("Updated");
+        const isloc = await locationModel.findOne({ rental_id: rental_id });
+        if (!isloc) {
 
-            res.json({
-                success: true,
-                message: "The Current Location updates is",
-                location: updtlocation
-            });
-        }
+            const iscab = await rentalCabModel.findOne({ _id: rental_id });
+
+            if (iscab) {
+
+                let currLoc = await getCurrentLocation();
+                const _id = await generateLocationId()
+                console.log("The Current Location is\n", currLoc);
+                const myLocation = new locationModel({
+                    _id: _id,
+                    rental_id: rental_id,
+                    location: {
+                        type: "Point",
+                        coordinates: [parseFloat(currLoc.lon), parseFloat(currLoc.lat)]
+                    }
+                })
+                const updtlocation = myLocation.save();
+                // const updtlocation = rentalCabModel.updateOne({ _id: _id },{ $set: { "locations.$.type": "Point","locations.$.coordinates":[parseFloat(lat),parseFloat(long)]} },{new:true});
+                console.log("Updated");
+
+                res.json({
+                    success: true,
+                    message: "The Current Location updates is",
+                    location: updtlocation
+                });
+            }
+            else {
+                res.json({
+                    success: true,
+                    message: `This _id ${rental_id} rental booking cant exist`
+                })
+            }//else close 
+        }// if close isloc
         else {
             res.json({
                 success: true,
-                message: `This _id ${_id} rental booking cant exist`
-            })
-        }//else close 
+                message: `The Rental Id ${rental_id} locations already added`
+            });
+        }
 
     }
     catch (error) {
@@ -186,43 +213,54 @@ const enterCurrentLocation = async (req, res) => {
             messageeee: error.message
         });
     }
-}
+}  // current location close 
 
 
 // Enter the location manually 
 const enterManualLocation = async (req, res) => {
     try {
         const rental_id = req.params._id;
-        const iscab = await rentalCabModel.findOne({ _id: rental_id });
-        if (iscab) {
-            //let currLoc = await getCurrentLocation();
-            const _id = await generateLocationId()
-            console.log("The Current Location is\n", currLoc);
-            const myLocation = new locationModel({
-                _id: _id,
-                rental_id: rental_id,
-                location: {
-                    type: "Point",
-                    coordinates: [parseFloat(req.body.longitude), parseFloat(req.body.latitude)]
+        const isloc = await locationModel.findOne({ rental_id: rental_id });
+        if (!isloc) {
 
-                }
-            })
-            const updtlocation = myLocation.save();
-            // const updtlocation = rentalCabModel.updateOne({ _id: _id },{ $set: { "locations.$.type": "Point","locations.$.coordinates":[parseFloat(lat),parseFloat(long)]} },{new:true});
-            // console.log("Updated");
+            const iscab = await rentalCabModel.findOne({ _id: rental_id });
 
-            res.json({
-                success: true,
-                message: "The Current Location updates is",
-                location: updtlocation
-            });
-        }
+            if(iscab) {
+
+                let currLoc = await getCurrentLocation();
+                const _id = await generateLocationId()
+                console.log("The Current Location is\n", currLoc);
+                const myLocation = new locationModel({
+                    _id: _id,
+                    rental_id: rental_id,
+                    location: {
+                        type: "Point",
+                        coordinates: [parseFloat(req.body.longitude), parseFloat(req.body.latitude)]
+                    }
+                })
+                const updtlocation = myLocation.save();
+                // const updtlocation = rentalCabModel.updateOne({ _id: _id },{ $set: { "locations.$.type": "Point","locations.$.coordinates":[parseFloat(lat),parseFloat(long)]} },{new:true});
+                console.log("Updated");
+
+                res.json({
+                    success: true,
+                    message: "The Current Location updates is",
+                    location: updtlocation
+                });
+            }
+            else {
+                res.json({
+                    success: true,
+                    message: `This _id ${rental_id} rental booking cant exist`
+                })
+            }//else close 
+        }// if close isloc
         else {
             res.json({
                 success: true,
-                message: `This _id ${_id} rental booking cant exist`
-            })
-        }//else close 
+                message: `The Rental Id ${rental_id} locations already added`
+            });
+        }
 
     }
     catch (error) {
@@ -232,6 +270,52 @@ const enterManualLocation = async (req, res) => {
         });
     }
 }
+
+
+//To Cancel the Rental Ride of given _id
+const cancelRentalRide = async (req, res) => {
+    try {
+        const _id = req.params._id;
+        const is_rental = await rentalCabModel.findOne({ _id });
+        if (is_rental) {
+            //change vehicle booking status to false  
+            let vehicle_no = is_rental.vehicle_no;
+            
+            const rental_id = is_rental._id;
+            // console.log("The Vehicle Number:", vehicle_no);
+            // const vehicle_detail = await vehicleModel.findOne({ vehicle_no: vehicle_no });
+            // const v_id = vehicle_detail._id;
+            // console.log(vehicle_detail);
+            // console.log(vehicle_detail._id);
+            const update_booking = await vehicleModel.findOneAndUpdate({vehicle_no:vehicle_no}, { $set: { booking_status: false } },
+                {
+                    new: true
+                });
+            const delete_location = await locationModel.deleteOne({ rental_id });
+            const rental_status = await rentalCabModel.findByIdAndUpdate({ _id }, { $set: { status: false } });
+            res.json({
+                success: true,
+                message: `The rental _id ${_id} has been cancels successfully`,
+                cancelRecord: is_rental
+            })
+
+        }//if close 
+        else {
+            res.json({
+                success: true,
+                message: `This Rental_Id ${_id} cant exist..enter correct _id`
+            });
+        } // else close 
+    } // try close 
+    catch (error) {
+        console.log(error);
+        res.json({
+            success: false,
+            message: error.message,
+
+        });
+    } // catch close 
+} // close cancelRentalRide
 
 
 module.exports =
@@ -239,5 +323,6 @@ module.exports =
     rentalCabAdd,
     listRentalCab,
     enterCurrentLocation,
-    enterManualLocation
+    enterManualLocation,
+    cancelRentalRide
 }
