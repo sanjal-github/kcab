@@ -12,15 +12,19 @@ const fareSchema = new mongoose.Schema({
     fuel_type:
     {
         type:String,
-        enum:["petrol","diesel","electric","cng"],
         required:true
     },
-    fare:
+    rental_fare:
     {
         type:Number,
         required:true
     },
-    per_hours:
+    ride_fare:
+    {
+        type:Number,
+        required:true
+    },
+    tour_fare:
     {
         type:Number,
         required:true

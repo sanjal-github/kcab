@@ -225,7 +225,7 @@ const enterManualLocation = async (req, res) => {
 
             const iscab = await rentalCabModel.findOne({ _id: rental_id });
 
-            if(iscab) {
+            if (iscab) {
 
                 let currLoc = await getCurrentLocation();
                 const _id = await generateLocationId()
@@ -280,14 +280,14 @@ const cancelRentalRide = async (req, res) => {
         if (is_rental) {
             //change vehicle booking status to false  
             let vehicle_no = is_rental.vehicle_no;
-            
+
             const rental_id = is_rental._id;
             // console.log("The Vehicle Number:", vehicle_no);
             // const vehicle_detail = await vehicleModel.findOne({ vehicle_no: vehicle_no });
             // const v_id = vehicle_detail._id;
             // console.log(vehicle_detail);
             // console.log(vehicle_detail._id);
-            const update_booking = await vehicleModel.findOneAndUpdate({vehicle_no:vehicle_no}, { $set: { booking_status: false } },
+            const update_booking = await vehicleModel.findOneAndUpdate({ vehicle_no: vehicle_no }, { $set: { booking_status: false } },
                 {
                     new: true
                 });
