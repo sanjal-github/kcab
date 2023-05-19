@@ -33,8 +33,8 @@ let uploadImage = multer({ storage: storage })
 
 
 // Routers of an api for vehicle 
-vehicle_routes.post("/vehicle", uploadImage.single("image"), vehicleControl.addVehicle);
-//vehicle_routes.post("/vehicle", vehicleControl.addVehicle); // this api not uploading an image
+vehicle_routes.post("/vehicle/uploadImage/:_id", uploadImage.single("image"), vehicleControl.upload_vehicle_image);
+vehicle_routes.post("/vehicle", vehicleControl.addVehicle); // this api not uploading an image
 vehicle_routes.get("/vehicle", vehicleControl.listVehicles);
 vehicle_routes.get("/vehicle/:_id", vehicleControl.display_vehicle);
 vehicle_routes.put("/vehicle/:_id", vehicleControl.update_vehicle);

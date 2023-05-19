@@ -66,6 +66,39 @@ const addVehicle = async (req, res) => {
 }
 
 
+//upload vehicle image 
+const upload_vehicle_image = async (req, res) => {
+    try {
+        const _id = req.params._id;
+        const if_found = await vehicleModel.findOne({ _id: _id });
+        if (if_found) {
+            const image = req.file.filename;
+            const upload_image = await vehicleModel.findByIdAndUpdate({ _id: _id }, { $set: { image: image } },
+                {
+                    new: true
+                }
+            );
+            res.json({
+                success: true,
+                message: `An image uploads for vehicle ${_id} successfully`,
+                record: upload_image
+            });
+        } // close of if_found
+        else {
+            res.json({
+                success: true,
+                message: `The Vehicle of this ${_id} cant found to upload image`
+            });
+        } // close of else 
+    }
+    catch (error) {
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+} // end of the upload_vehicle_image 
+
 // To get the Vehicles Details
 const listVehicles = async (req, res) => {
     try {
@@ -221,5 +254,6 @@ module.exports =
     display_vehicle,
     update_vehicle,
     hard_delete_vehicle,
-    soft_delete_vehicle
+    soft_delete_vehicle,
+    upload_vehicle_image
 }

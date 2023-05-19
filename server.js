@@ -15,6 +15,8 @@ app.use("/kcab",require("./routes/userRoutes"));
 app.use("/kcab",require("./routes/vehicleRoutes"));
 app.use("/kcab",require("./routes/driverRoutes"));
 app.use("/kcab",require("./routes/rentalCabRoutes"));
+app.use("/kcab",require("./routes/fareRoutes"));
+
 
 //connecting from mongoose 
 mongoose.connect(process.env.MONGO_URI,

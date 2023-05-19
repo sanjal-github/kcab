@@ -35,8 +35,9 @@ var addDetails = async (req, res) => {
             _id: fare_id,
             seater_type: req.body.seater_type,
             fuel_type: req.body.fuel_type,
-            fare: req.body.fare,
-            per_hours: req.body.per_hours
+            rental_fare: req.body.rental_fare,
+            ride_fare:req.body.ride_fare,
+            tour_fare: req.body.tour_fare
         });   // fareModel
         const saveFare = await rideFare.save(); // adding the fare in the mongod
         res.json({
