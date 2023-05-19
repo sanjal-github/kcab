@@ -36,8 +36,9 @@ const rentalCabSchema = new mongoose.Schema({
     },
     status:
     {
-        type: Boolean,
-        default: true
+        type:String,
+        default: "Booked",
+        enum:["Booked","Cancelled","Completed","Running"]
     },
     vehicle_no:
     {

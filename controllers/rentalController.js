@@ -3,7 +3,8 @@ const userModel = require("../models/users");
 const locationModel = require("../models/rentalLocation");
 const vehicleModel = require("../models/vehicles");
 const vehicle = require("../models/vehicles");
-
+const rentalOTPVerifyModel = require("../models/rentalOTPVerify");
+const otpGenerator = require("otp-generator");
 let generateAutoId = async (req, res) => {
     try {
         let rental_id = 0;
@@ -42,14 +43,14 @@ let rentalCabAdd = async (req, res) => {
 
             console.log(rental_vehical);
             if (rental_vehical) {
-                let alloted_vehicle =
-                {
-                    vehicle_no: rental_vehical.vehicle_no,
-                    name: rental_vehical.name,
-                    brand: rental_vehical.brand,
-                    color: rental_vehical.color,
-                    fuel_type: rental_vehical.fuel_type
-                }
+                // let alloted_vehicle =
+                // {
+                //     vehicle_no: rental_vehical.vehicle_no,
+                //     name: rental_vehical.name,
+                //     brand: rental_vehical.brand,
+                //     color: rental_vehical.color,
+                //     fuel_type: rental_vehical.fuel_type
+                // }
                 const id = await generateAutoId(); // The function call to generate auto Id
                 const rentalCabAdd = new rentalCabModel({
                     _id: id,
@@ -62,14 +63,16 @@ let rentalCabAdd = async (req, res) => {
                     vehicle_no: rental_vehical.vehicle_no
                 }); //end of the rentalCabAdd
                 const rentalCabSave = await rentalCabAdd.save(); // save the rental
+                // To generate an otp for rental cab 
+                generateRentalOTP(rentalCabSave, res);  // function call to genertate an OTP 
                 const update_vehicle_status = await vehicleModel.updateOne({ _id: rental_vehical._id }, { $set: { booking_status: true } })
-                res.json({
-                    success: true,
-                    message: 'The Request for the Rental Cab Added',
-                    records: rentalCabAdd,
-                    vehicle_Record: alloted_vehicle
+                // res.json({
+                //     success: true,
+                //     message: 'The Request for the Rental Cab Added',
+                //     records: rentalCabAdd,
+                //     vehicle_Record: alloted_vehicle
 
-                }); // res.json close
+                // }); // res.json close
             } // close rental_vehicle
             else {
                 res.json({
@@ -95,6 +98,72 @@ let rentalCabAdd = async (req, res) => {
         })
     }//end of the catch 
 } // rentalCabAdd 
+
+
+const generateRentalOTPAutoID = async (req, res) => {
+    try {
+        const rentalOTPCount = await rentalOTPVerifyModel.find().count();
+        let otp_id = 0;
+        if (rentalOTPCount == 0) {
+            otp_id = 32110;
+        }
+        else {
+            const otp_record = await rentalOTPVerifyModel.findOne.sort({ _id: -1 }).limit(1);
+            otp_id = Number(otp_record._id);
+            otp_id = otp_id + 1;
+
+        }
+        return otp_id.toString();
+    }
+    catch (error) {
+        res.json({
+            success: false,
+            error: error.message
+        })
+    }
+}
+// Function definition to generate an OTP for rental cab 
+
+const generateRentalOTP = async ({ _id, status, vehicle_no }, res) => {
+    try {
+        const otp = otpGenerator.generate(4, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
+        const rental_OTP_id = await generateRentalOTPAutoID();
+        const rentalOTP = new rentalOTPVerifyModel({
+            _id: rental_OTP_id,
+            rental_id: _id,
+            otp: otp
+        })
+        const rentalOTPRecord = await rentalOTP.save();
+        res.json({
+            message: "Verification OTP send for rental Cab",
+            otp: otp,
+            rental_id: _id,
+            status: status,
+            vehicle_no: vehicle_no
+        })
+
+    } // end of the try 
+    catch (error) {
+        res.json({
+            success: false,
+            message: error.message
+        });
+    }  // end of the catch 
+} // generateRentalOTP close 
+
+
+//To Verify Rental OTP
+const verifyRentalCabOTP = async(req,res) =>
+{
+    try 
+    {
+
+    }
+    catch(error)
+    {
+
+    }
+}
 
 //To list all the rental Cab Request  
 const listRentalCab = async (req, res) => {
