@@ -108,7 +108,7 @@ const generateRentalOTPAutoID = async (req, res) => {
             otp_id = 32110;
         }
         else {
-            const otp_record = await rentalOTPVerifyModel.findOne.sort({ _id: -1 }).limit(1);
+            const otp_record = await rentalOTPVerifyModel.findOne().sort({ _id: -1 }).limit(1);
             otp_id = Number(otp_record._id);
             otp_id = otp_id + 1;
 
@@ -116,6 +116,7 @@ const generateRentalOTPAutoID = async (req, res) => {
         return otp_id.toString();
     }
     catch (error) {
+        console.log(error);
         res.json({
             success: false,
             error: error.message
@@ -128,6 +129,7 @@ const generateRentalOTP = async ({ _id, status, vehicle_no }, res) => {
     try {
         const otp = otpGenerator.generate(4, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
         const rental_OTP_id = await generateRentalOTPAutoID();
+        console.log("OTP pppp")
         const rentalOTP = new rentalOTPVerifyModel({
             _id: rental_OTP_id,
             rental_id: _id,
@@ -144,6 +146,7 @@ const generateRentalOTP = async ({ _id, status, vehicle_no }, res) => {
 
     } // end of the try 
     catch (error) {
+        console.log(error)
         res.json({
             success: false,
             message: error.message
@@ -156,10 +159,10 @@ const generateRentalOTP = async ({ _id, status, vehicle_no }, res) => {
 const verifyRentalCabOTP = async (req, res) => {
     try {
         const _id = req.params._id;
-
+        const rental_id = _id;
         const chk_data = await rentalCabModel.findOne({ _id });
         if (chk_data) {
-            const user_otp = req.body.otp;
+            
             const is_verify = await rentalOTPVerifyModel.findOne({ $and: [{ rental_id: _id }, { status: true }] });
             if (is_verify) {
                 res.json({
@@ -168,20 +171,26 @@ const verifyRentalCabOTP = async (req, res) => {
                 })
             }
             else {
-                const otp_verify = await rentalOTPVerifyModel.findOne({ rental_id: _id });
+                
+                var otp_verify = await rentalOTPVerifyModel.findOne({rental_id:rental_id});
+                console.log(otp_verify);
                 const expiresOTP = otp_verify.expiresAt;
                 if (expiresOTP < Date.Now) {
                     res.json({
-                        success:true,
-                        message:`otp ${otp} expires......resend it again..`
+                        success: true,
+                        message: `otp ${otp} expires......resend it again..`
                     })
                 }
                 else {
 
 
                     const otp = otp_verify.otp;
+                    const user_otp = req.body.otp;
+                    console.log(otp_verify,otp);
+                    
+                    
                     if (user_otp == otp) {
-                        const update_status = await rentalOTPVerifyModel.findOneAndUpdate({ rental_id: _id }, { status: true }, { new: true });
+                        const update_status = await rentalOTPVerifyModel.findOneAndUpdate({ rental_id: _id }, { status: true }, { verifyAt: Date.Now }, { new: true });
                         const vehicle_no = chk_data.vehicle_no;
                         const booking_status = await vehicleModel.findOneAndUpdate({ vehicle_no: vehicle_no }, { booking_status: true }, {
                             new: true

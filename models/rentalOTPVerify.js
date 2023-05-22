@@ -30,6 +30,11 @@ const rentalOTPVerifySchema = new mongoose.Schema({
     {
     type:Date,
     default:Date.now()+3600000
+    },
+    verifyAt:
+    {
+        type:Date,
+        default:Date.now()
     }
 },
 {
