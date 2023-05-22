@@ -7,4 +7,6 @@ rental_routes.get("/rentalCab",rentalCabControl.listRentalCab);
 rental_routes.put("/currentLocation/:_id",rentalCabControl.enterCurrentLocation);
 rental_routes.put("/manualLocation/:_id",rentalCabControl.enterManualLocation);
 rental_routes.put("/cancelRentalRide/:_id",rentalCabControl.cancelRentalRide);
+rental_routes.put("/VerifyRentalRideOtp/:_id",rentalCabControl.verifyRentalCabOTP);
+
 module.exports = rental_routes;
