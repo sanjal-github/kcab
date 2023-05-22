@@ -21,7 +21,7 @@ const rentalCabSchema = new mongoose.Schema({
     },
     rental_date:
     {
-        type: Date,
+        type: String,
         required: true
     },
     rental_time:

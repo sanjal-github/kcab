@@ -162,17 +162,17 @@ const verifyRentalCabOTP = async (req, res) => {
         const rental_id = _id;
         const chk_data = await rentalCabModel.findOne({ _id });
         if (chk_data) {
-            
+
             const is_verify = await rentalOTPVerifyModel.findOne({ $and: [{ rental_id: _id }, { status: true }] });
             if (is_verify) {
                 res.json({
                     success: true,
-                    message: `This OTP ${user_otp} is already verified`
+                    message: `This OTP ${is_verify.otp} is already verified`
                 })
             }
             else {
-                
-                var otp_verify = await rentalOTPVerifyModel.findOne({rental_id:rental_id});
+
+                var otp_verify = await rentalOTPVerifyModel.findOne({ rental_id: rental_id });
                 console.log(otp_verify);
                 const expiresOTP = otp_verify.expiresAt;
                 if (expiresOTP < Date.Now) {
@@ -186,9 +186,9 @@ const verifyRentalCabOTP = async (req, res) => {
 
                     const otp = otp_verify.otp;
                     const user_otp = req.body.otp;
-                    console.log(otp_verify,otp);
-                    
-                    
+                    console.log(otp_verify, otp);
+
+
                     if (user_otp == otp) {
                         const update_status = await rentalOTPVerifyModel.findOneAndUpdate({ rental_id: _id }, { status: true }, { verifyAt: Date.Now }, { new: true });
                         const vehicle_no = chk_data.vehicle_no;
@@ -426,7 +426,8 @@ const cancelRentalRide = async (req, res) => {
                     new: true
                 });
             const delete_location = await locationModel.deleteOne({ rental_id });
-            const rental_status = await rentalCabModel.findByIdAndUpdate({ _id }, { $set: { status: false } });
+            const rental_status = await rentalCabModel.findByIdAndUpdate({ _id }, { $set: { status: "Cancelled" } });
+            const delete_otp = await rentalOTPVerifyModel.deleteOne({ rental_id });
             res.json({
                 success: true,
                 message: `The rental _id ${_id} has been cancels successfully`,
