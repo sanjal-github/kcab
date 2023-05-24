@@ -4,6 +4,8 @@ const locationModel = require("../models/rentalLocation");
 const vehicleModel = require("../models/vehicles");
 const vehicle = require("../models/vehicles");
 const rentalOTPVerifyModel = require("../models/rentalOTPVerify");
+const rentalPaymentModel = require("../models/rental_payment");
+
 const otpGenerator = require("otp-generator");
 let generateAutoId = async (req, res) => {
     try {
@@ -159,75 +161,53 @@ const generateRentalOTP = async ({ _id, status, vehicle_no }, res) => {
 const verifyRentalCabOTP = async (req, res) => {
     try {
         const _id = req.params._id;
-        const rental_id = _id;
-        const chk_data = await rentalCabModel.findOne({ _id });
-        if (chk_data) {
+        const is_otp_exist = await rentalOTPVerifyModel.findOne({ $and: [{ _id }, { status: false }] });
+        console.log(is_otp_exist);
+        if (is_otp_exist) {
+            const otp = req.body.otp;
+            const rental_id = is_otp_exist.rental_id;
+            console.log(rental_id);
+            const is_otp_match = await rentalOTPVerifyModel.findOne({ $and: [{ _id: _id }, { otp: otp }] });
+            if (is_otp_match) {
+                //Changing the status in the otp Verifying Model 
+                const update_status = await rentalOTPVerifyModel.findOneAndUpdate({ _id },
+                    {
+                        $set: { status: true, book_status: "running" }
+                    },
 
-            const is_verify = await rentalOTPVerifyModel.findOne({ $and: [{ rental_id: _id }, { status: true }] });
-            if (is_verify) {
+                    {
+                        new: true
+                    })
+                // Updating the status in rental cab model
+                const update_cab_status = await rentalCabModel.updateOne({ _id: rental_id }, { $set: { status: "Running" } },
+                    {
+                        new: true
+                    })
                 res.json({
                     success: true,
-                    message: `This OTP ${is_verify.otp} is already verified`
+                    message: 'otp successfully verify'
+                })
+
+
+            }//is_otp_match
+            else {
+                res.json({
+                    success: true,
+                    message: 'otp cant match'
                 })
             }
-            else {
-
-                var otp_verify = await rentalOTPVerifyModel.findOne({ rental_id: rental_id });
-                console.log(otp_verify);
-                const expiresOTP = otp_verify.expiresAt;
-                if (expiresOTP < Date.Now) {
-                    res.json({
-                        success: true,
-                        message: `otp ${otp} expires......resend it again..`
-                    })
-                }
-                else {
-
-
-                    const otp = otp_verify.otp;
-                    const user_otp = req.body.otp;
-                    console.log(otp_verify, otp);
-
-
-                    if (user_otp == otp) {
-                        const update_status = await rentalOTPVerifyModel.findOneAndUpdate({ rental_id: _id }, { status: true }, { verifyAt: Date.Now }, { new: true });
-                        const vehicle_no = chk_data.vehicle_no;
-                        const booking_status = await vehicleModel.findOneAndUpdate({ vehicle_no: vehicle_no }, { booking_status: true }, {
-                            new: true
-                        });
-                        const rental_status = await rentalCabModel.findByIdAndUpdate({ _id }, { status: "Running" }, {
-                            new: true
-                        });
-                        res.json({
-                            success: true,
-                            message: "otp verifies successfully......go ahead"
-                        });
-                    }
-
-                    else {
-                        res.json({
-                            success: true,
-                            message: "otp cant match.....try again"
-                        });
-                    }
-                }
-
-            }
-        }
+        } //if otp_exist
         else {
             res.json({
                 success: true,
-                message: `Cant find ID:${_id} rental cab details `
+                message: `otp verification record of ${_id} cant exist or been already verified`
             })
+
         }
-    }
+    } //try
     catch (error) {
-        console.log("Verify Rental Cab error:", error);
-        res.json({
-            success: false,
-            message: error.message
-        })
-    }
+
+    } //catch
 }
 
 //To list all the rental Cab Request  
@@ -427,7 +407,13 @@ const cancelRentalRide = async (req, res) => {
                 });
             const delete_location = await locationModel.deleteOne({ rental_id });
             const rental_status = await rentalCabModel.findByIdAndUpdate({ _id }, { $set: { status: "Cancelled" } });
-            const delete_otp = await rentalOTPVerifyModel.deleteOne({ rental_id });
+            const update_otp = await rentalOTPVerifyModel.updateOne({ rental_id },
+                {
+                    $set: { book_status: "cancelled" }
+                },
+                {
+                    new: true
+                });
             res.json({
                 success: true,
                 message: `The rental _id ${_id} has been cancels successfully`,
@@ -452,6 +438,79 @@ const cancelRentalRide = async (req, res) => {
     } // catch close 
 } // close cancelRentalRide
 
+//------------------------------------------------------------------------------------------
+
+const rental_payment = async (req, res) => {
+    try {
+
+    }
+    catch (error) {
+        console.log("Rental Payment Error:" + error)
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+//An API rental cab completion 
+const rentalCabComplete = async (req, res) => {
+    try {
+        let _id = req.params._id;
+        console.log(_id)
+        console.log("An Id is ", _id)
+        const otp_verify = await rentalOTPVerifyModel.findOne({ $and: [{ _id: _id }, { book_status: "running" }] });
+        if (otp_verify) {
+            // const book_status = otp_verify.book_status;
+            //updating the status in rentalotpverification model
+            const updt_otp_status = await rentalOTPVerifyModel.findOneAndUpdate({ _id: otp_verify._id },
+                {
+                    $set: { book_status: "completed" }
+                },
+                {
+                    new: true
+                })
+            //updating the status in rental cab model 
+            const _id = otp_verify.rental_id;
+            const update_rental_status = await rentalCabModel.findByIdAndUpdate({ _id: _id },
+                { status: "Completed" },
+                {
+                    new: true
+                })
+            //update vehicle booking status 
+            const vehicle_no = update_rental_status.vehicle_no;
+            const update_vehicle_status = await vehicleModel.updateOne({ vehicle_no },
+                {
+                    "booking_status": false
+                },
+                {
+                    new: true
+                }
+            )
+            res.json({
+                success: true,
+                message: `The ${_id} rental cab ride completed`,
+
+            })
+        } //if 
+        else {
+
+            res.json({
+                success: true,
+                message: `${_id} otp verification record doesnt exist or not in running state`
+
+            })
+        } //else
+
+    }//try
+    catch (error) {
+        console.log(error);
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }  //catch
+} // rentalCabComplete
 
 module.exports =
 {
@@ -460,5 +519,6 @@ module.exports =
     enterCurrentLocation,
     enterManualLocation,
     cancelRentalRide,
-    verifyRentalCabOTP
+    verifyRentalCabOTP,
+    rentalCabComplete
 }

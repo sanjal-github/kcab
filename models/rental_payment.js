@@ -3,7 +3,11 @@ const mongoose = require("mongoose");
 const paymentSchema = new mongoose.Schema({
   _id:
   {
-    type:Sṭring,
+    type:String,
+  },
+  verify_id:
+  {
+    type:String,
   },
   transaction_id:
   {

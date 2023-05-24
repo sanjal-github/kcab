@@ -19,8 +19,13 @@ const rentalOTPVerifySchema = new mongoose.Schema({
     {
         type:Boolean,
         default:false
-    }
-    ,
+    },
+    book_status:
+    {
+        type:String,
+        enum:["booked","completed","running","cancelled"],
+        default:"booked"
+    },
     createdAt:
     {
         type:Date,
@@ -29,19 +34,19 @@ const rentalOTPVerifySchema = new mongoose.Schema({
     expiresAt:
     {
     type:Date,
-    default:Date.now()+3600000
+    default:Date.now()+3600
     },
     verifyAt:
     {
         type:Date,
         default:Date.now()
-    }
+    },
+
 },
 {
     timestamps:true
 });
 
 const rentalOTP = new mongoose.model("rentalOTPVerify", rentalOTPVerifySchema);
-
 module.exports = rentalOTP;
 
