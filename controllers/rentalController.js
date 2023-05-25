@@ -4,7 +4,10 @@ const locationModel = require("../models/rentalLocation");
 const vehicleModel = require("../models/vehicles");
 const vehicle = require("../models/vehicles");
 const rentalOTPVerifyModel = require("../models/rentalOTPVerify");
-const rentalPaymentModel = require("../models/rental_payment");
+const rentalCabCompleteModel = require("../models/rental_cab_completed");
+const fareModel = require("../models/fare");
+const rentalPayModel = require("../models/rental_payment");
+
 
 const otpGenerator = require("otp-generator");
 let generateAutoId = async (req, res) => {
@@ -143,7 +146,7 @@ const generateRentalOTP = async ({ _id, status, vehicle_no }, res) => {
         })
         const rentalOTPRecord = await rentalOTP.save();
         res.json({
-            message: "Verification OTP send for rental Cab",
+            message: "Verification OTP send for rental Cab valid only for 2 minutes",
             otp: otp,
             rental_id: _id,
             status: status,
@@ -159,6 +162,8 @@ const generateRentalOTP = async ({ _id, status, vehicle_no }, res) => {
         });
     }  // end of the catch 
 } // generateRentalOTP close 
+
+
 
 
 //To Verify Rental OTP
@@ -181,9 +186,11 @@ const verifyRentalCabOTP = async (req, res) => {
                 const is_otp_match = await rentalOTPVerifyModel.findOne({ $and: [{ _id: _id }, { otp: otp }] });
                 if (is_otp_match) {
                     //Changing the status in the otp Verifying Model 
+                    const otp_verify_date = new Date(Date.now());
+
                     const update_status = await rentalOTPVerifyModel.findOneAndUpdate({ _id },
                         {
-                            $set: { status: true, book_status: "running" }
+                            $set: { status: true, book_status: "running", verifyAt: otp_verify_date }
                         },
 
                         {
@@ -216,12 +223,12 @@ const verifyRentalCabOTP = async (req, res) => {
                     });
                 const rental_cab = await rentalCabModel.findOneAndUpdate({ _id: rental_id },
                     {
-                        $set:{status:"otp_expires"}
+                        $set: { status: "otp_expires" }
                     },
                     {
-                        new:true
+                        new: true
                     });
-                    
+
                 let vehicle_no = rental_cab.vehicle_no;
                 //since an otp expires so unbboked the vehicle 
                 const vehicle_status = await vehicleModel.findOneAndUpdate({ vehicle_no },
@@ -485,29 +492,87 @@ const cancelRentalRide = async (req, res) => {
 
 //------------------------------------------------------------------------------------------
 
-const rental_payment = async (req, res) => {
-    try {
-
-    }
-    catch (error) {
-        console.log("Rental Payment Error:" + error)
-        res.json({
-            success: false,
-            message: error.message
-        })
-    }
-}
 
 //An API rental cab completion 
+
+let generateCabCompleteAutoId = async (req, res) => {
+    try {
+
+        let completion_id = 0;
+        let cabCount = await rentalCabCompleteModel.count();
+        if (cabCount == 0)  // the database table is empty 
+        {
+            completion_id = 17011;
+
+        }
+        else {
+            let completion_idd = await locationModel.findOne().sort({ _id: -1 }).limit(1);
+            completion_id = Number(completion_idd._id);
+            completion_id = completion_id + 1;
+
+        }
+        return completion_id.toString();
+
+    } // try 
+    catch (error) {
+        console.log("An Auto Generate Id:", error)
+    } // catch 
+}
+
+//The method to find the difference in hours between 2 dates 
+function diff_hours(dt2, dt1) {
+
+    var diff = (dt2.getTime() - dt1.getTime()) / 1000;
+    diff /= (60 * 60);
+    return Math.abs(Math.round(diff));
+
+}
+
 const rentalCabComplete = async (req, res) => {
     try {
         let _id = req.params._id;
         console.log(_id)
         console.log("An Id is ", _id)
+
         const otp_verify = await rentalOTPVerifyModel.findOne({ $and: [{ _id: _id }, { book_status: "running" }] });
+        console.log(otp_verify);
         if (otp_verify) {
-            // const book_status = otp_verify.book_status;
-            //updating the status in rentalotpverification model
+            const cab_id = await generateCabCompleteAutoId(); // fnc call to generate auto id 
+            const rental_id = otp_verify.rental_id;
+            const otp_verify_At = otp_verify.verifyAt; // the date and time of opt verification
+            const rental_cab_dtls = await rentalCabModel.findOne({ _id: rental_id });
+            const vehicle_noo = rental_cab_dtls.vehicle_no;
+
+            //get the details of thr booked vehicle 
+            const vehicle_dtls = await vehicleModel.findOne({ vehicle_no: vehicle_noo });
+
+            //extracting the seater type and fuel type
+            let seater_type = vehicle_dtls.seater_type;
+            let fuel_type = vehicle_dtls.fuel_type;
+            console.log(seater_type, fuel_type);
+
+            const fare_dtls = await fareModel.findOne({ $and: [{ seater_type: seater_type }, { fuel_type: fuel_type }] });
+            rental_fare = fare_dtls.rental_fare;
+            console.log("The REntal Fare is:", rental_fare);
+            const completedAt = new Date(Date.now());
+            console.log(`Verify ${otp_verify_At} and Complete At ${completedAt}`);
+            //calculate total hours between start and completion
+            const hours = diff_hours(otp_verify_At, completedAt);
+            
+            //calculating total fare according to hours and rental fare per hour 
+            const total_fare = rental_fare * hours;
+            
+            
+            const complete_ride = new rentalCabCompleteModel({
+                _id: cab_id,
+                verify_id: otp_verify._id,
+                completedAt: completedAt,
+                total_hour: hours,
+                total_payment: total_fare
+            })
+
+            // Saving it to the mongoose 
+            const save_complete_ride = await complete_ride.save();
             const updt_otp_status = await rentalOTPVerifyModel.findOneAndUpdate({ _id: otp_verify._id },
                 {
                     $set: { book_status: "completed" }
@@ -530,13 +595,15 @@ const rentalCabComplete = async (req, res) => {
                 },
                 {
                     new: true
-                }
-            )
-            res.json({
-                success: true,
-                message: `The ${_id} rental cab ride completed`,
+                })
 
-            })
+            makePayment(save_complete_ride, res); // move to the payment api 
+
+            // // res.json({
+            // //     success: true,
+            // //     message: `The ${_id} rental cab ride completed`,
+
+            // })
         } //if 
         else {
 
@@ -549,13 +616,67 @@ const rentalCabComplete = async (req, res) => {
 
     }//try
     catch (error) {
-        console.log(error);
+        console.log("Cab Comp error:",error);
         res.json({
             success: false,
             message: error.message
         })
     }  //catch
 } // rentalCabComplete
+
+// The method to make the payment 
+
+const autoGeneratePaymentId = async () => {
+    try {
+
+        let payment_id = 0;
+        let payCount = await rentalPayModel.count();
+        if (payCount == 0)  // the database table is empty 
+        {
+            payment_id = 56011;
+
+        }
+        else {
+            let payment_idd = await rentalPayModel.findOne().sort({ _id: -1 }).limit(1);
+            payment_id = Number(payment_idd._id);
+            payment_id = payment_id + 1;
+
+        }
+        return payment_id.toString();
+
+    } // try 
+    catch (error) {
+        console.log("An Auto Generate Id:", error)
+    } // catch 
+}
+const makePayment = async ({ _id, total_payment }, res) => {
+    try {
+
+        const id = await autoGeneratePaymentId();
+        const create_pays = new rentalPayModel({
+            _id: id,
+            complete_id: _id,
+            total_payment: total_payment
+        });
+
+        const pay_me = await create_pays.save();
+        res.json({
+            message: `The ${_id} Rental Ride Completes`,
+            complete_id: _id,
+            total_payment: total_payment,
+            status: "unpaid"
+        })
+
+    }
+    catch (error) {
+        console.log("payment error:", error);
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+
+}
 
 module.exports =
 {
@@ -565,5 +686,6 @@ module.exports =
     enterManualLocation,
     cancelRentalRide,
     verifyRentalCabOTP,
-    rentalCabComplete
+    rentalCabComplete,
+
 }

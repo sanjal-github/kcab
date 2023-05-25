@@ -1,46 +1,44 @@
 const mongoose = require("mongoose");
 
-const paymentSchema = new mongoose.Schema({
+const rentalPaymentSchema = new mongoose.Schema({
   _id:
-  {
-    type:String,
-  },
-  verify_id:
   {
     type:String,
   },
   transaction_id:
   {
+    type:Number,
+    default:0
+  },
+  complete_id:
+  {
     type:String,
   },
-  date:
+  total_payment:
   {
-    type:Date
-  },
-  time:
-  {
-    type:Date
-  },
-  total_time:
-  {
-    type:Number
+    type:Number,
+    default:0
   },
   tax:
   {
-    type:Number
+    type:Number,
+    default:0,
   },
-  total_Amount:
+  net_Payment:
   {
     type:Number,
-  },
-  pay_mode:
-  {
-    type:String,
-    enum:["cash","online"]
+    default:10
   },
   status:
   {
-    type:String
+    type:String,
+    enum:["paid","unpaid","partial"],
+    default:"unpaid"
   }
-
+},
+{
+  timestamps:true
 })
+
+const rental_cab_paymnt = new mongoose.model("rentCabPays",rentalPaymentSchema);
+module.exports = rental_cab_paymnt;
