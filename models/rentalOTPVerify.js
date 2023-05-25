@@ -3,48 +3,44 @@ const mongoose = require("mongoose");
 const rentalOTPVerifySchema = new mongoose.Schema({
     _id:
     {
-        type:String,
+        type: String,
 
     },
     rental_id:
     {
-        type:String,
+        type: String,
     },
     otp:
     {
-        type:String,
-        required:true
+        type: String,
+        required: true
     },
     status:
     {
-        type:Boolean,
-        default:false
+        type: Boolean,
+        default: false
     },
     book_status:
     {
-        type:String,
-        enum:["booked","completed","running","cancelled"],
-        default:"booked"
+        type: String,
+        enum: ["booked", "completed", "running", "cancelled","otp_expires"],
+        default: "booked"
     },
     createdAt:
     {
-        type:Date,
-        default:Date.now()
+        type: Date,
+
     },
     expiresAt:
     {
-    type:Date,
-    default:Date.now()+3600
+        type: Date,
     },
     verifyAt:
     {
-        type:Date,
-        default:Date.now()
+        type: Date,
+
     },
 
-},
-{
-    timestamps:true
 });
 
 const rentalOTP = new mongoose.model("rentalOTPVerify", rentalOTPVerifySchema);

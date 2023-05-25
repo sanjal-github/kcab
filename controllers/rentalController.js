@@ -131,11 +131,15 @@ const generateRentalOTP = async ({ _id, status, vehicle_no }, res) => {
     try {
         const otp = otpGenerator.generate(4, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
         const rental_OTP_id = await generateRentalOTPAutoID();
-        console.log("OTP pppp")
+        //console.log("OTP pppp")
+        const otpCreate = new Date(Date.now()); // otp generated time
+        const otpExpires = new Date(otpCreate.getTime() + 2 * 60000) // otp expires after 2 minutes
         const rentalOTP = new rentalOTPVerifyModel({
             _id: rental_OTP_id,
             rental_id: _id,
-            otp: otp
+            otp: otp,
+            createdAt: otpCreate,
+            expiresAt: otpExpires
         })
         const rentalOTPRecord = await rentalOTP.save();
         res.json({
@@ -161,39 +165,75 @@ const generateRentalOTP = async ({ _id, status, vehicle_no }, res) => {
 const verifyRentalCabOTP = async (req, res) => {
     try {
         const _id = req.params._id;
-        const is_otp_exist = await rentalOTPVerifyModel.findOne({ $and: [{ _id }, { status: false }] });
+        const is_otp_exist = await rentalOTPVerifyModel.findOne({
+            $and: [{ _id }, { status: false }
+                , { book_status: "booked" }]
+        });
         console.log(is_otp_exist);
         if (is_otp_exist) {
             const otp = req.body.otp;
             const rental_id = is_otp_exist.rental_id;
+            const otp_expires = is_otp_exist.expiresAt;
+            const dt = new Date(Date.now()); // The date and time when otp verifies
             console.log(rental_id);
-            const is_otp_match = await rentalOTPVerifyModel.findOne({ $and: [{ _id: _id }, { otp: otp }] });
-            if (is_otp_match) {
-                //Changing the status in the otp Verifying Model 
-                const update_status = await rentalOTPVerifyModel.findOneAndUpdate({ _id },
-                    {
-                        $set: { status: true, book_status: "running" }
-                    },
+            if (dt < otp_expires) {
 
-                    {
-                        new: true
+                const is_otp_match = await rentalOTPVerifyModel.findOne({ $and: [{ _id: _id }, { otp: otp }] });
+                if (is_otp_match) {
+                    //Changing the status in the otp Verifying Model 
+                    const update_status = await rentalOTPVerifyModel.findOneAndUpdate({ _id },
+                        {
+                            $set: { status: true, book_status: "running" }
+                        },
+
+                        {
+                            new: true
+                        })
+                    // Updating the status in rental cab model
+                    const update_cab_status = await rentalCabModel.updateOne({ _id: rental_id }, { $set: { status: "Running" } },
+                        {
+                            new: true
+                        })
+                    res.json({
+                        success: true,
+                        message: 'otp successfully verify'
                     })
-                // Updating the status in rental cab model
-                const update_cab_status = await rentalCabModel.updateOne({ _id: rental_id }, { $set: { status: "Running" } },
-                    {
-                        new: true
+
+
+                }//is_otp_match
+                else {
+                    res.json({
+                        success: true,
+                        message: 'otp cant match'
                     })
-                res.json({
-                    success: true,
-                    message: 'otp successfully verify'
-                })
-
-
-            }//is_otp_match
+                }
+            }// if(dt<expiresAt)
             else {
+                const update_status = await rentalOTPVerifyModel.findByIdAndUpdate({ _id },
+                    { $set: { book_status: "otp_expires" } },
+                    {
+                        new: true
+                    });
+                const rental_cab = await rentalCabModel.findOneAndUpdate({ _id: rental_id },
+                    {
+                        $set:{status:"otp_expires"}
+                    },
+                    {
+                        new:true
+                    });
+                    
+                let vehicle_no = rental_cab.vehicle_no;
+                //since an otp expires so unbboked the vehicle 
+                const vehicle_status = await vehicleModel.findOneAndUpdate({ vehicle_no },
+                    {
+                        $set: { booking_status: false }
+                    },
+                    {
+                        new: true
+                    })
                 res.json({
                     success: true,
-                    message: 'otp cant match'
+                    message: "otp expires"
                 })
             }
         } //if otp_exist
@@ -206,6 +246,11 @@ const verifyRentalCabOTP = async (req, res) => {
         }
     } //try
     catch (error) {
+        console.log(error)
+        res.json({
+            success: false,
+            message: error.message
+        })
 
     } //catch
 }
