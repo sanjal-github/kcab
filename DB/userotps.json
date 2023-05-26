@@ -1,0 +1,81 @@
+[{
+  "_id": "31011",
+  "userId": 1101,
+  "otp": "496935",
+  "status": true,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1683527280484"
+    }
+  },
+  "expiresAt": {
+    "$date": {
+      "$numberLong": "1683530880484"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "31012",
+  "userId": 1101,
+  "otp": "756540",
+  "status": true,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1683527510219"
+    }
+  },
+  "expiresAt": {
+    "$date": {
+      "$numberLong": "1683531110219"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "31013",
+  "userId": 1101,
+  "otp": "726707",
+  "status": false,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684147930074"
+    }
+  },
+  "expiresAt": {
+    "$date": {
+      "$numberLong": "1684151530074"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "31014",
+  "userId": 1102,
+  "otp": "111987",
+  "status": true,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684155739357"
+    }
+  },
+  "expiresAt": {
+    "$date": {
+      "$numberLong": "1684159339357"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "31015",
+  "userId": 1103,
+  "otp": "597701",
+  "status": true,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684390260165"
+    }
+  },
+  "expiresAt": {
+    "$date": {
+      "$numberLong": "1684393860165"
+    }
+  },
+  "__v": 0
+}]

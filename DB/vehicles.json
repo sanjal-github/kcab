@@ -1,0 +1,97 @@
+[{
+  "_id": "31001",
+  "vehicle_no": "HR-17 JK 2447",
+  "name": "Verna",
+  "brand": "Hyundai",
+  "model": "2011",
+  "color": "red",
+  "fuel_type": "diesel",
+  "seater_type": 12,
+  "image": "1684479949579-3.jpg",
+  "price": "1150000",
+  "status": "active",
+  "booking_status": false,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684386694622"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684998764172"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "31002",
+  "vehicle_no": "DL-17 KO 2244",
+  "name": "Alto",
+  "brand": "Maruti Suzuki",
+  "model": "2016",
+  "color": "white",
+  "fuel_type": "petrol",
+  "seater_type": 4,
+  "image": "",
+  "price": "1150000",
+  "status": "active",
+  "booking_status": true,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684386772372"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684999060551"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "31003",
+  "vehicle_no": "UP-11 KO 1249",
+  "name": "swift",
+  "brand": "Maruti Suzuki",
+  "model": "2014",
+  "color": "pink",
+  "fuel_type": "petrol",
+  "seater_type": 4,
+  "image": "",
+  "price": "750000",
+  "status": "active",
+  "booking_status": false,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684386848316"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1685017532753"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "31004",
+  "vehicle_no": "HR-11 AP 6571",
+  "name": "Bolero",
+  "brand": "Mahindra",
+  "model": "2018",
+  "color": "black",
+  "fuel_type": "diesel",
+  "seater_type": 12,
+  "image": "1684480050089-14.jpg",
+  "price": "950000",
+  "status": "active",
+  "booking_status": false,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684386928992"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684996695388"
+    }
+  },
+  "__v": 0
+}]

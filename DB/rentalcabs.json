@@ -1,0 +1,64 @@
+[{
+  "_id": "67011",
+  "user_id": "1102",
+  "seater_type": 12,
+  "rental_Hours": 5,
+  "rental_date": "11-11-2023",
+  "rental_time": "11:30:02",
+  "start_price": 600,
+  "status": "otp_expires",
+  "vehicle_no": "HR-17 JK 2447",
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684998496787"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684998764168"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "67012",
+  "user_id": "1102",
+  "seater_type": 4,
+  "rental_Hours": 5,
+  "rental_date": "11-11-2023",
+  "rental_time": "11:30:02",
+  "start_price": 600,
+  "status": "Running",
+  "vehicle_no": "DL-17 KO 2244",
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684999060544"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684999095562"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "67013",
+  "user_id": "1101",
+  "seater_type": 4,
+  "rental_Hours": 5,
+  "rental_date": "11-11-2023",
+  "rental_time": "11:30:02",
+  "start_price": 600,
+  "status": "Completed",
+  "vehicle_no": "UP-11 KO 1249",
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1685005325799"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1685017532749"
+    }
+  },
+  "__v": 0
+}]

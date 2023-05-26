@@ -1,0 +1,52 @@
+[{
+  "_id": "1101",
+  "phone": "9880821094",
+  "status": "Registered",
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1683527280469"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684155721951"
+    }
+  },
+  "__v": 0,
+  "email": "ramVerma@gmail.com",
+  "name": "Ram Verma"
+},{
+  "_id": "1102",
+  "phone": "9880321091",
+  "status": "Registered",
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684155739349"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684492279728"
+    }
+  },
+  "__v": 0,
+  "email": "madhu_Verma@gmail.com",
+  "name": "Madhu Verma"
+},{
+  "_id": "1103",
+  "phone": "7180321091",
+  "status": "Registered",
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684390260152"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684390441706"
+    }
+  },
+  "__v": 0,
+  "email": "shlokaVerma@gmail.com",
+  "name": "Shloka Verma"
+}]

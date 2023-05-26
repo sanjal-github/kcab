@@ -1,0 +1,199 @@
+[{
+  "_id": "1115",
+  "seater_type": 4,
+  "fuel_type": "petrol",
+  "rental_fare": 100,
+  "ride_fare": 50,
+  "tour_fare": 5000,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684477384869"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684477384869"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "1116",
+  "seater_type": 5,
+  "fuel_type": "petrol",
+  "rental_fare": 150,
+  "ride_fare": 100,
+  "tour_fare": 5500,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684477506957"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684477506957"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "1117",
+  "seater_type": 6,
+  "fuel_type": "petrol",
+  "rental_fare": 180,
+  "ride_fare": 120,
+  "tour_fare": 5600,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684477533674"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684477533674"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "1118",
+  "seater_type": 8,
+  "fuel_type": "petrol",
+  "rental_fare": 220,
+  "ride_fare": 120,
+  "tour_fare": 6000,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684477801176"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684477801176"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "1119",
+  "seater_type": 12,
+  "fuel_type": "petrol",
+  "rental_fare": 240,
+  "ride_fare": 120,
+  "tour_fare": 7000,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684477859984"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684477859984"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "1120",
+  "seater_type": 4,
+  "fuel_type": "diesel",
+  "rental_fare": 80,
+  "ride_fare": 20,
+  "tour_fare": 2000,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684477921520"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684477921520"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "1121",
+  "seater_type": 5,
+  "fuel_type": "diesel",
+  "rental_fare": 100,
+  "ride_fare": 25,
+  "tour_fare": 2500,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684478222367"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684478222367"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "1122",
+  "seater_type": 6,
+  "fuel_type": "diesel",
+  "rental_fare": 120,
+  "ride_fare": 30,
+  "tour_fare": 2800,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684478245027"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684478245027"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "1123",
+  "seater_type": 8,
+  "fuel_type": "diesel",
+  "rental_fare": 140,
+  "ride_fare": 35,
+  "tour_fare": 3000,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684478268927"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684478268927"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "1124",
+  "seater_type": 10,
+  "fuel_type": "diesel",
+  "rental_fare": 150,
+  "ride_fare": 40,
+  "tour_fare": 3300,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684478286990"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684478286990"
+    }
+  },
+  "__v": 0
+},{
+  "_id": "1125",
+  "seater_type": 12,
+  "fuel_type": "diesel",
+  "rental_fare": 180,
+  "ride_fare": 50,
+  "tour_fare": 3500,
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1684478305098"
+    }
+  },
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1684478305098"
+    }
+  },
+  "__v": 0
+}]
